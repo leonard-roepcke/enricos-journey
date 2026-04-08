@@ -89,47 +89,42 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="relative flex flex-1 w-full max-w-4xl flex-col items-center py-16 px-6 bg-white dark:bg-black sm:items-center">
-        <h1 className="w-full text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50 mb-8 text-center">
-          Zeitstrahl — Galerie ({images.length})
-        </h1>
+      <main className="flex flex-1 w-full max-w-4xl flex-col items-center py-16 px-6 bg-white dark:bg-black sm:items-center">
+        <header className="w-full text-center mb-8">
+          <h1 className="text-4xl font-extrabold tracking-tight text-black dark:text-zinc-50">Zeitstrahl</h1>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{images.length} Einträge</p>
+        </header>
 
-        {/* central bar */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-zinc-200 dark:bg-zinc-800" />
+        <section className="w-full relative">
+          {/* central bar spans only the timeline container (from first to last item) */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-zinc-200 dark:bg-zinc-800" />
 
-        <div className="w-full space-y-8">
-          {images.length === 0 && (
-            <p className="text-zinc-600 dark:text-zinc-400 text-center">
-              Keine Bilder im Ordner <code>/public/images</code> gefunden.
-            </p>
-          )}
+          <div className="w-full space-y-8 relative">
+            {images.length === 0 ? (
+              <p className="text-zinc-600 dark:text-zinc-400 text-center py-12">Keine Bilder vorhanden.</p>
+            ) : (
+              images.map((item, idx) => {
+                const isEven = idx % 2 === 0; // alternate sides
 
-          {images.map((item, idx) => {
-            const isEven = idx % 2 === 0; // alternate sides
+                // split file list into array
+                const files = Array.isArray(item.file) ? item.file : String(item.file).split(',');
 
-            // split file list into array
-            const files = Array.isArray(item.file) ? item.file : String(item.file).split(',');
+                return (
+                  <div key={item.file} className="relative w-full py-6">
+                    {/* marker on the center line */}
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
+                    </div>
 
-            return (
-              <div key={item.file} className="relative w-full py-6">
-                {/* marker on the center line */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
-                </div>
-
-                <div className={`flex items-center w-full ${isEven ? 'justify-end pr-8' : 'justify-start pl-8'}`}>
-                  <TimelineItem files={files} caption={item.caption} side={isEven ? 'right' : 'left'} />
-                 </div>
-               </div>
-             );
-           })}
-        </div>
-
-        <div className="mt-8 w-full text-center">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Du kannst pro Bild eine kurze Beschreibung als Sidecar anlegen: mit demselben Dateinamen und Endung <code>.txt</code>, <code>.md</code> oder <code>.json</code> (z. B. <code>IMG-01.txt</code> oder <code>IMG-01.json</code> mit <code>{'{ "caption": "..." }'}</code>). Alternativ wird die Beschreibung aus dem Dateinamen abgeleitet.
-          </p>
-        </div>
+                    <div className={`flex items-center w-full ${isEven ? 'justify-end pr-8' : 'justify-start pl-8'}`}>
+                      <TimelineItem files={files} caption={item.caption} side={isEven ? 'right' : 'left'} />
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
