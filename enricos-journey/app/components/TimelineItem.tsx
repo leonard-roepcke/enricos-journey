@@ -67,13 +67,15 @@ export default function TimelineItem({ files, caption, side }: Props) {
             {idx + 1} / {count}
           </div>
         )}
-        <img
-          src={`/images/${files[idx]}`}
-          alt={caption}
-          className="w-full h-auto rounded-md object-cover"
-        />
+        <div className="w-full h-64 md:h-96 overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-900">
+          <img
+            src={`/images/${files[idx]}`}
+            alt={caption}
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
           <strong className="text-zinc-900 dark:text-zinc-100">{caption}</strong>
         </p>
       </div>
