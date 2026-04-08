@@ -14,12 +14,9 @@ export default function TimelineItem({ files, caption, side }: Props) {
   const intervalMs = 4000;
   const hoverRef = useRef(false);
 
-  // robust timeout loop (avoids setInterval closure issues)
+  // automatic slideshow using timeout loop
   useEffect(() => {
-    if (count <= 1) {
-      console.log('TimelineItem: no rotation, count=', count);
-      return;
-    }
+    if (count <= 1) return;
 
     let mounted = true;
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -28,13 +25,7 @@ export default function TimelineItem({ files, caption, side }: Props) {
       timer = setTimeout(() => {
         if (!mounted) return;
         if (!hoverRef.current) {
-          setIdx((i) => {
-            const next = (i + 1) % count;
-            console.log('TimelineItem: advancing', i, '->', next);
-            return next;
-          });
-        } else {
-          console.log('TimelineItem: paused by hover/focus');
+          setIdx((i) => (i + 1) % count);
         }
         schedule();
       }, intervalMs);
@@ -48,43 +39,31 @@ export default function TimelineItem({ files, caption, side }: Props) {
     };
   }, [count]);
 
-  useEffect(() => {
-    console.log('TimelineItem mount/update: files=', files, 'count=', count);
-  }, [files, count]);
-
   return (
-    <div className={`w-full max-w-[90%] ${side === 'right' ? 'text-right' : 'text-left'}`}>
+    <div className={`w-full ${side === 'right' ? 'text-right' : 'text-left'}`}>
       <div
-        className="inline-block bg-white p-4 rounded-xl shadow-md relative overflow-visible"
+        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg overflow-hidden"
         onMouseEnter={() => (hoverRef.current = true)}
         onMouseLeave={() => (hoverRef.current = false)}
-        onFocus={() => (hoverRef.current = true)}
-        onBlur={() => (hoverRef.current = false)}
       >
-        {/* visible index badge for debugging rotation */}
-        {count > 1 && (
-          <div className="absolute right-3 top-3 bg-black/70 text-white text-xs px-2 py-0.5 rounded pointer-events-none z-50">
-            {idx + 1} / {count}
-          </div>
-        )}
-        <div className="w-full h-64 md:h-96 relative overflow-hidden rounded-md bg-white flex items-center justify-center p-1">
-          {files.map((f, i) => {
-            const isActive = i === idx;
-            return (
-              <img
-                key={f}
-                src={`/images/${f}`}
-                alt={isActive ? caption : ''}
-                aria-hidden={!isActive}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out transform ${isActive ? 'opacity-100 scale-105' : 'opacity-0 scale-100'}`}
-              />
-            );
-          })}
+        <div className="w-full h-96 md:h-[60vh] relative bg-gray-50 dark:bg-zinc-800">
+          {files.map((f, i) => (
+            <img
+              key={f}
+              src={`/images/${f}`}
+              alt={i === idx ? caption : ''}
+              aria-hidden={i !== idx}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+            />
+          ))}
         </div>
 
-        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-          <strong className="text-zinc-900 dark:text-zinc-100">{caption}</strong>
-        </p>
+        <div className="p-4 md:p-6">
+          <p className="text-sm md:text-base text-zinc-700 dark:text-zinc-300 leading-snug">
+            <strong className="block text-zinc-900 dark:text-zinc-50 mb-1">{caption}</strong>
+            <span className="text-zinc-500 dark:text-zinc-400">Kurzer Begleittext oder Datum — ergänze mit Sidecar-Datei.</span>
+          </p>
+        </div>
       </div>
     </div>
   );
