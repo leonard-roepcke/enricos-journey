@@ -1,12 +1,13 @@
 {
   "name": "enricos-journey",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export -o out",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "next lint",
     "download-mega": "node scripts/download-mega.js"
   },
   "dependencies": {

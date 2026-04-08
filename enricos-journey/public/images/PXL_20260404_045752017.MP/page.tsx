@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import TimelineItem from './components/TimelineItem';
+import TimelineItem from '../../../app/components/TimelineItem';
 
 // force static rendering so the images are read at build time
 export const dynamic = "force-static";
