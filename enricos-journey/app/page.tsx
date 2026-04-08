@@ -6,7 +6,7 @@ import TimelineItem from './components/TimelineItem';
 export const dynamic = "force-static";
 
 type ImageItem = {
-  file: string;
+  file: string[];
   caption: string;
 };
 
@@ -50,7 +50,7 @@ export default function Home() {
         if (!caption) caption = imgFiles[0];
 
         // file paths relative to /public/images so <img src={`/images/${file}`} /> still works
-        items.push({ file: imgFiles.map((f) => `${ent.name}/${f}`).join(','), caption });
+        items.push({ file: imgFiles.map((f) => `${ent.name}/${f}`), caption });
       }
 
       // legacy support: image files directly in public/images
@@ -80,11 +80,11 @@ export default function Home() {
         }
         if (!caption) caption = fileName;
 
-        items.push({ file: fileName, caption });
+        items.push({ file: [fileName], caption });
       }
     }
 
-    images = items.map((it) => ({ file: it.file, caption: it.caption } as any));
+    images = items;
   }
 
   return (
@@ -106,11 +106,10 @@ export default function Home() {
               images.map((item, idx) => {
                 const isEven = idx % 2 === 0; // alternate sides
 
-                // split file list into array
-                const files = Array.isArray(item.file) ? item.file : String(item.file).split(',');
+                const files = item.file.map((s) => s.trim());
 
                 return (
-                  <div key={item.file} className="relative w-full py-6">
+                  <div key={item.file[0]} className="relative w-full py-6">
                     {/* marker on the center line */}
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                       <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
