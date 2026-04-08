@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 type Props = {
   files: string[];
   caption: string;
+  description?: string;
   side: 'left' | 'right';
 };
 
-export default function TimelineItem({ files, caption, side }: Props) {
+export default function TimelineItem({ files, caption, description, side }: Props) {
   const [idx, setIdx] = useState(0);
   const count = files.length;
   const intervalMs = 4000;
@@ -39,6 +40,21 @@ export default function TimelineItem({ files, caption, side }: Props) {
     };
   }, [count]);
 
+  // avoid duplicate text: if the description starts with the caption, strip that first line
+  const trimmedDesc = description?.trim() ?? '';
+  let descToShow = '';
+  if (trimmedDesc) {
+    const lines = trimmedDesc.split(/\r?\n/);
+    const firstNonEmpty = lines.find((l) => l.trim().length > 0) || '';
+    if (firstNonEmpty && firstNonEmpty.trim() === caption.trim()) {
+      // remove the first occurrence of that line
+      const escaped = firstNonEmpty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      descToShow = trimmedDesc.replace(new RegExp('^' + escaped + '\\s*\\n?'), '').trim();
+    } else {
+      descToShow = trimmedDesc;
+    }
+  }
+
   return (
     <div className={`w-full ${side === 'right' ? 'text-right' : 'text-left'}`}>
       <div
@@ -61,7 +77,13 @@ export default function TimelineItem({ files, caption, side }: Props) {
         <div className="p-4 md:p-6">
           <p className="text-sm md:text-base text-zinc-700 dark:text-zinc-300 leading-snug">
             <strong className="block text-zinc-900 dark:text-zinc-50 mb-1">{caption}</strong>
-            <span className="text-zinc-500 dark:text-zinc-400">Kurzer Begleittext oder Datum — ergänze mit Sidecar-Datei.</span>
+            {description ? (
+              descToShow ? (
+                <span className="text-zinc-600 dark:text-zinc-400 whitespace-pre-line">{descToShow}</span>
+              ) : null
+            ) : (
+              <span className="text-zinc-500 dark:text-zinc-400">Kurzer Begleittext oder Datum — ergänze mit Sidecar-Datei.</span>
+            )}
           </p>
         </div>
       </div>

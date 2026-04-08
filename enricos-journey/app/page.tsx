@@ -8,6 +8,7 @@ export const dynamic = "force-static";
 type ImageItem = {
   file: string[];
   caption: string;
+  description?: string;
 };
 
 export default function Home() {
@@ -31,14 +32,20 @@ export default function Home() {
         const jsonPath = path.join(subdir, "description.json");
 
         let caption = "";
+        let description = "";
         try {
           if (fs.existsSync(jsonPath)) {
             const parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-            caption = (parsed && (parsed.caption || parsed.description)) || "";
+            caption = (parsed && (parsed.caption || parsed.title || parsed.name)) || "";
+            description = (parsed && (parsed.description || parsed.body || parsed.text)) || "";
           } else if (fs.existsSync(txtPath)) {
-            caption = fs.readFileSync(txtPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+            const txt = fs.readFileSync(txtPath, "utf8");
+            description = txt.trim();
+            caption = description.split("\n").map(s => s.trim()).filter(Boolean)[0] || "";
           } else if (fs.existsSync(mdPath)) {
-            caption = fs.readFileSync(mdPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+            const md = fs.readFileSync(mdPath, "utf8");
+            description = md.trim();
+            caption = description.split("\n").map(s => s.trim()).filter(Boolean)[0] || "";
           }
         } catch (e) {
           // ignore
@@ -49,10 +56,10 @@ export default function Home() {
         }
         if (!caption) caption = imgFiles[0];
 
-        items.push({ file: imgFiles.map((f) => `${ent.name}/${f}`), caption });
+        items.push({ file: imgFiles.map((f) => `${ent.name}/${f}`), caption, description });
       }
 
-      // legacy flat files inside public/images
+      // legacy support: image files directly in public/images
       if (ent.isFile() && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(ent.name)) {
         const fileName = ent.name;
         const base = fileName.replace(/\.[^/.]+$/, "");
@@ -61,14 +68,20 @@ export default function Home() {
         const jsonPath = path.join(imagesDir, `${base}.json`);
 
         let caption = "";
+        let description = "";
         try {
           if (fs.existsSync(jsonPath)) {
             const parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-            caption = (parsed && (parsed.caption || parsed.description)) || "";
+            caption = (parsed && (parsed.caption || parsed.title || parsed.name)) || "";
+            description = (parsed && (parsed.description || parsed.body || parsed.text)) || "";
           } else if (fs.existsSync(txtPath)) {
-            caption = fs.readFileSync(txtPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+            const txt = fs.readFileSync(txtPath, "utf8");
+            description = txt.trim();
+            caption = description.split("\n").map(s => s.trim()).filter(Boolean)[0] || "";
           } else if (fs.existsSync(mdPath)) {
-            caption = fs.readFileSync(mdPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+            const md = fs.readFileSync(mdPath, "utf8");
+            description = md.trim();
+            caption = description.split("\n").map(s => s.trim()).filter(Boolean)[0] || "";
           }
         } catch (e) {
           // ignore
@@ -79,7 +92,7 @@ export default function Home() {
         }
         if (!caption) caption = fileName;
 
-        items.push({ file: [fileName], caption });
+        items.push({ file: [fileName], caption, description });
       }
     }
 
@@ -112,7 +125,7 @@ export default function Home() {
                   return (
                     <div key={item.file[0]} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
                       <div className={`flex ${side === 'left' ? 'justify-end pr-6' : 'justify-start pr-6'}`}>
-                        {side === 'left' && <TimelineItem files={files} caption={item.caption} side={side} />}
+                        {side === 'left' && <TimelineItem files={files} caption={item.caption} description={item.description} side={side} />}
                       </div>
 
                       <div className="flex flex-col items-center justify-center">
@@ -120,7 +133,7 @@ export default function Home() {
                       </div>
 
                       <div className={`flex ${side === 'right' ? 'justify-start pl-6' : 'justify-end pl-6'}`}>
-                        {side === 'right' && <TimelineItem files={files} caption={item.caption} side={side} />}
+                        {side === 'right' && <TimelineItem files={files} caption={item.caption} description={item.description} side={side} />}
                       </div>
                     </div>
                   );
