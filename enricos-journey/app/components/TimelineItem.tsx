@@ -53,9 +53,9 @@ export default function TimelineItem({ files, caption, side }: Props) {
   }, [files, count]);
 
   return (
-    <div className={`w-full max-w-[46%] ${side === 'right' ? 'text-right' : 'text-left'}`}>
+    <div className={`w-full max-w-[90%] ${side === 'right' ? 'text-right' : 'text-left'}`}>
       <div
-        className="inline-block bg-white p-4 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 relative overflow-visible"
+        className="inline-block bg-white p-4 rounded-xl shadow-md relative overflow-visible"
         onMouseEnter={() => (hoverRef.current = true)}
         onMouseLeave={() => (hoverRef.current = false)}
         onFocus={() => (hoverRef.current = true)}
@@ -67,12 +67,19 @@ export default function TimelineItem({ files, caption, side }: Props) {
             {idx + 1} / {count}
           </div>
         )}
-        <div className="w-full h-64 md:h-96 overflow-hidden rounded-md bg-white border border-zinc-100 dark:border-zinc-700">
-          <img
-            src={`/images/${files[idx]}`}
-            alt={caption}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-full h-64 md:h-96 relative overflow-hidden rounded-md bg-white flex items-center justify-center p-1">
+          {files.map((f, i) => {
+            const isActive = i === idx;
+            return (
+              <img
+                key={f}
+                src={`/images/${f}`}
+                alt={isActive ? caption : ''}
+                aria-hidden={!isActive}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out transform ${isActive ? 'opacity-100 scale-105' : 'opacity-0 scale-100'}`}
+              />
+            );
+          })}
         </div>
 
         <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
