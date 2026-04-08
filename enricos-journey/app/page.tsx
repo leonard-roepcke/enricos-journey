@@ -136,11 +136,6 @@ export default function Home() {
 
                 return (
                   <div key={item.file[0]} className="relative w-full py-16" style={{ transform: `translateX(${translateX}) translateY(${translateY}px)` }}>
-                    {/* marker centered on the item */}
-                    <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '50%' }}>
-                      <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
-                    </div>
-
                     <div className={`flex items-center w-full ${alignClass}`}>
                       <TimelineItem files={files} caption={item.caption} side={side} />
                     </div>
