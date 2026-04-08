@@ -1,63 +1,134 @@
-import Image from "next/image";
+import fs from "fs";
+import path from "path";
+import TimelineItem from './components/TimelineItem';
+
+// force static rendering so the images are read at build time
+export const dynamic = "force-static";
+
+type ImageItem = {
+  file: string;
+  caption: string;
+};
 
 export default function Home() {
+  const imagesDir = path.join(process.cwd(), "public", "images");
+  let images: ImageItem[] = [];
+
+  if (fs.existsSync(imagesDir)) {
+    const dirents = fs.readdirSync(imagesDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+    const items: ImageItem[] = [];
+
+    for (const ent of dirents) {
+      // support grouped folder: public/images/<name>/<image> + description files
+      if (ent.isDirectory()) {
+        const subdir = path.join(imagesDir, ent.name);
+        const childFiles = fs.readdirSync(subdir).sort();
+        const imgFiles = childFiles.filter((f) => /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(f));
+        if (imgFiles.length === 0) continue;
+
+        const txtPath = path.join(subdir, "description.txt");
+        const mdPath = path.join(subdir, "description.md");
+        const jsonPath = path.join(subdir, "description.json");
+
+        let caption = "";
+        try {
+          if (fs.existsSync(jsonPath)) {
+            const parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+            caption = (parsed && (parsed.caption || parsed.description)) || "";
+          } else if (fs.existsSync(txtPath)) {
+            caption = fs.readFileSync(txtPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+          } else if (fs.existsSync(mdPath)) {
+            caption = fs.readFileSync(mdPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        if (!caption) {
+          caption = ent.name.replace(/^\d+[\s-_]*/g, "").replace(/[\-_]+/g, " ").trim();
+        }
+        if (!caption) caption = imgFiles[0];
+
+        // file paths relative to /public/images so <img src={`/images/${file}`} /> still works
+        items.push({ file: imgFiles.map((f) => `${ent.name}/${f}`).join(','), caption });
+      }
+
+      // legacy support: image files directly in public/images
+      if (ent.isFile() && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(ent.name)) {
+        const fileName = ent.name;
+        const base = fileName.replace(/\.[^/.]+$/, "");
+        const txtPath = path.join(imagesDir, `${base}.txt`);
+        const mdPath = path.join(imagesDir, `${base}.md`);
+        const jsonPath = path.join(imagesDir, `${base}.json`);
+
+        let caption = "";
+        try {
+          if (fs.existsSync(jsonPath)) {
+            const parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+            caption = (parsed && (parsed.caption || parsed.description)) || "";
+          } else if (fs.existsSync(txtPath)) {
+            caption = fs.readFileSync(txtPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+          } else if (fs.existsSync(mdPath)) {
+            caption = fs.readFileSync(mdPath, "utf8").split("\n").slice(0, 3).join(" ").trim();
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        if (!caption) {
+          caption = base.replace(/^\d+[\s-_]*/g, "").replace(/[\-_]+/g, " ").trim();
+        }
+        if (!caption) caption = fileName;
+
+        items.push({ file: fileName, caption });
+      }
+    }
+
+    images = items.map((it) => ({ file: it.file, caption: it.caption } as any));
+  }
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        {/* ersetzt das Next-Logo durch dein MEGA-Bild in /public/enricos-mega.jpg */}
-        <Image
-          src="/enricos-mega.jpg"
-          alt="Enricos Bild"
-          className="max-w-full h-auto rounded shadow-md dark:invert"
-          width={800}
-          height={450}
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      <main className="relative flex flex-1 w-full max-w-4xl flex-col items-center py-16 px-6 bg-white dark:bg-black sm:items-center">
+        <h1 className="w-full text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50 mb-8 text-center">
+          Zeitstrahl — Galerie ({images.length})
+        </h1>
+
+        {/* central bar */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-zinc-200 dark:bg-zinc-800" />
+
+        <div className="w-full space-y-8">
+          {images.length === 0 && (
+            <p className="text-zinc-600 dark:text-zinc-400 text-center">
+              Keine Bilder im Ordner <code>/public/images</code> gefunden.
+            </p>
+          )}
+
+          {images.map((item, idx) => {
+            const isEven = idx % 2 === 0; // alternate sides
+
+            // split file list into array
+            const files = Array.isArray(item.file) ? item.file : String(item.file).split(',');
+
+            return (
+              <div key={item.file} className="relative w-full py-6">
+                {/* marker on the center line */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
+                </div>
+
+                <div className={`flex items-center w-full ${isEven ? 'justify-end pr-8' : 'justify-start pl-8'}`}>
+                  <TimelineItem files={files} caption={item.caption} side={isEven ? 'right' : 'left'} />
+                 </div>
+               </div>
+             );
+           })}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="mt-8 w-full text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Du kannst pro Bild eine kurze Beschreibung als Sidecar anlegen: mit demselben Dateinamen und Endung <code>.txt</code>, <code>.md</code> oder <code>.json</code> (z. B. <code>IMG-01.txt</code> oder <code>IMG-01.json</code> mit <code>{'{ "caption": "..." }'}</code>). Alternativ wird die Beschreibung aus dem Dateinamen abgeleitet.
+          </p>
         </div>
       </main>
     </div>
