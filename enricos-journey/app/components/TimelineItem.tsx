@@ -55,7 +55,7 @@ export default function TimelineItem({ files, caption, side }: Props) {
   return (
     <div className={`w-full max-w-[46%] ${side === 'right' ? 'text-right' : 'text-left'}`}>
       <div
-        className="inline-block bg-white dark:bg-zinc-900 p-3 rounded-lg shadow-md relative overflow-visible"
+        className="inline-block bg-white p-4 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 relative overflow-visible"
         onMouseEnter={() => (hoverRef.current = true)}
         onMouseLeave={() => (hoverRef.current = false)}
         onFocus={() => (hoverRef.current = true)}
@@ -67,7 +67,7 @@ export default function TimelineItem({ files, caption, side }: Props) {
             {idx + 1} / {count}
           </div>
         )}
-        <div className="w-full h-64 md:h-96 overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-900">
+        <div className="w-full h-64 md:h-96 overflow-hidden rounded-md bg-white border border-zinc-100 dark:border-zinc-700">
           <img
             src={`/images/${files[idx]}`}
             alt={caption}

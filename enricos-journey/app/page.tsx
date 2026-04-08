@@ -96,46 +96,53 @@ export default function Home() {
         </header>
 
         <section className="w-full relative">
-          {/* decorative sinus curve in the center (multiple bezier segments approximating a sine) */}
+          {/* large decorative sinus curve spanning half the viewport width */}
           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 pointer-events-none text-zinc-200 dark:text-zinc-700">
-            <svg className="w-40 h-full" viewBox="0 0 200 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-[50vw] h-full" viewBox="0 0 200 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M100 0
-                   C140 80 60 160 100 240
-                   C140 320 60 400 100 480
-                   C140 560 60 640 100 720
-                   C140 800 60 880 100 960"
+                   C200 120 0 240 100 360
+                   C200 480 0 600 100 720
+                   C200 840 0 960 100 1080"
                 stroke="currentColor"
-                strokeWidth="6"
+                strokeWidth="8"
                 fill="none"
                 strokeLinecap="round"
               />
             </svg>
           </div>
 
-          <div className="w-full relative space-y-24">
+          <div className="w-full relative space-y-32">
             {images.length === 0 ? (
               <p className="text-zinc-600 dark:text-zinc-400 text-center py-12">Keine Bilder vorhanden.</p>
             ) : (
               images.map((item, idx) => {
                 const files = item.file.map((s) => s.trim());
 
-                // make the sine wave steeper and larger so images sit in wave valleys
+                // compute position along a big sinus curve: horizontal amplitude in vw, vertical valley offset in px
                 const progress = images.length > 1 ? idx / (images.length - 1) : 0;
-                const waves = Math.max(1, images.length); // one wave per item (more troughs)
-                const phase = progress * Math.PI * 2 * waves - Math.PI / 2; // shift so first is valley
-                const amplitude = 240; // much larger horizontal amplitude in px
-                const translateX = Math.round(Math.sin(phase) * amplitude);
+                const waves = Math.max(1, images.length); // number of wave cycles down the timeline
+                const phase = progress * Math.PI * 2 * waves - Math.PI / 2; // start in a valley
+                const amplitudeVw = 25; // amplitude in vw (half-screen ~50vw range)
+                const txNum = Math.round(Math.sin(phase) * amplitudeVw); // numeric vw value
+                const translateX = `${txNum}vw`;
+                const valleyDepth = 80; // vertical sink into valley in px
+                const translateY = Math.round(Math.abs(Math.sin(phase)) * valleyDepth);
+
+                // if the wave bulges to the right (positive txNum), show image on the left, and vice versa
+                const isWaveRight = txNum > 0;
+                const alignClass = isWaveRight ? 'justify-start pl-8' : 'justify-end pr-8';
+                const side = isWaveRight ? 'left' : 'right';
 
                 return (
-                  <div key={item.file[0]} className="relative w-full py-12" style={{ transform: `translateX(${translateX}px)` }}>
+                  <div key={item.file[0]} className="relative w-full py-16" style={{ transform: `translateX(${translateX}) translateY(${translateY}px)` }}>
                     {/* marker centered on the item */}
                     <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '50%' }}>
                       <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
                     </div>
 
-                    <div className="flex items-center w-full justify-center">
-                      <TimelineItem files={files} caption={item.caption} side={idx % 2 === 0 ? 'right' : 'left'} />
+                    <div className={`flex items-center w-full ${alignClass}`}>
+                      <TimelineItem files={files} caption={item.caption} side={side} />
                     </div>
                   </div>
                 );
