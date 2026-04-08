@@ -96,27 +96,46 @@ export default function Home() {
         </header>
 
         <section className="w-full relative">
-          {/* central bar spans only the timeline container (from first to last item) */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-zinc-200 dark:bg-zinc-800" />
+          {/* decorative sinus curve in the center (multiple bezier segments approximating a sine) */}
+          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 pointer-events-none text-zinc-200 dark:text-zinc-700">
+            <svg className="w-40 h-full" viewBox="0 0 200 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M100 0
+                   C140 80 60 160 100 240
+                   C140 320 60 400 100 480
+                   C140 560 60 640 100 720
+                   C140 800 60 880 100 960"
+                stroke="currentColor"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
 
-          <div className="w-full space-y-8 relative">
+          <div className="w-full relative space-y-24">
             {images.length === 0 ? (
               <p className="text-zinc-600 dark:text-zinc-400 text-center py-12">Keine Bilder vorhanden.</p>
             ) : (
               images.map((item, idx) => {
-                const isEven = idx % 2 === 0; // alternate sides
-
                 const files = item.file.map((s) => s.trim());
 
+                // make the sine wave steeper and larger so images sit in wave valleys
+                const progress = images.length > 1 ? idx / (images.length - 1) : 0;
+                const waves = Math.max(1, images.length); // one wave per item (more troughs)
+                const phase = progress * Math.PI * 2 * waves - Math.PI / 2; // shift so first is valley
+                const amplitude = 240; // much larger horizontal amplitude in px
+                const translateX = Math.round(Math.sin(phase) * amplitude);
+
                 return (
-                  <div key={item.file[0]} className="relative w-full py-6">
-                    {/* marker on the center line */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div key={item.file[0]} className="relative w-full py-12" style={{ transform: `translateX(${translateX}px)` }}>
+                    {/* marker centered on the item */}
+                    <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '50%' }}>
                       <div className="w-4 h-4 bg-indigo-600 rounded-full border-2 border-white dark:border-black shadow" />
                     </div>
 
-                    <div className={`flex items-center w-full ${isEven ? 'justify-end pr-8' : 'justify-start pl-8'}`}>
-                      <TimelineItem files={files} caption={item.caption} side={isEven ? 'right' : 'left'} />
+                    <div className="flex items-center w-full justify-center">
+                      <TimelineItem files={files} caption={item.caption} side={idx % 2 === 0 ? 'right' : 'left'} />
                     </div>
                   </div>
                 );
