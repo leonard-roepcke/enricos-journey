@@ -103,8 +103,8 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-50 font-sans">
       <main className="max-w-6xl mx-auto px-6 py-16">
         <header className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Mein Zeitstrahl</h1>
-          <p className="mt-3 text-zinc-600 dark:text-zinc-400">Ein einfacher, moderner und klarer Überblick über die wichtigsten Bilder.</p>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Enricos Journey</h1>
+          <p className="mt-3 text-zinc-600 dark:text-zinc-400"></p>
         </header>
 
         <section className="relative">
@@ -117,13 +117,13 @@ export default function Home() {
             {images.length === 0 ? (
               <div className="py-24 text-center text-zinc-600 dark:text-zinc-400">Keine Bilder vorhanden.</div>
             ) : (
-              <div className="space-y-12">
+              <div className="mt-3.75">
                 {images.map((item, idx) => {
                   const files = item.file.map((s) => s.trim());
                   const side = idx % 2 === 0 ? 'left' : 'right';
 
                   return (
-                    <div key={item.file[0]} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                    <div key={item.file[0]} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 -mt-15 first:mt-0">
                       <div className={`flex ${side === 'left' ? 'justify-end pr-6' : 'justify-start pr-6'}`}>
                         {side === 'left' && <TimelineItem files={files} caption={item.caption} description={item.description} side={side} />}
                       </div>
