@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -15,7 +15,6 @@ export default function TimelineItem({ files, caption, description, side }: Prop
   const intervalMs = 4000;
   const hoverRef = useRef(false);
 
-  // automatic slideshow using timeout loop
   useEffect(() => {
     if (count <= 1) return;
 
@@ -40,14 +39,13 @@ export default function TimelineItem({ files, caption, description, side }: Prop
     };
   }, [count]);
 
-  // avoid duplicate text: if the description starts with the caption, strip that first line
+  // Description kürzen, wenn Caption doppelt ist
   const trimmedDesc = description?.trim() ?? '';
   let descToShow = '';
   if (trimmedDesc) {
     const lines = trimmedDesc.split(/\r?\n/);
     const firstNonEmpty = lines.find((l) => l.trim().length > 0) || '';
     if (firstNonEmpty && firstNonEmpty.trim() === caption.trim()) {
-      // remove the first occurrence of that line
       const escaped = firstNonEmpty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       descToShow = trimmedDesc.replace(new RegExp('^' + escaped + '\\s*\\n?'), '').trim();
     } else {
@@ -66,10 +64,12 @@ export default function TimelineItem({ files, caption, description, side }: Prop
           {files.map((f, i) => (
             <img
               key={f}
-              src={`/images/${f}`}
+              src={f} // Pfad jetzt komplett, kein zusätzliches basePath
               alt={i === idx ? caption : ''}
               aria-hidden={i !== idx}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                i === idx ? 'opacity-100' : 'opacity-0'
+              }`}
             />
           ))}
         </div>
@@ -77,10 +77,8 @@ export default function TimelineItem({ files, caption, description, side }: Prop
         <div className="p-4 md:p-6">
           <p className="text-sm md:text-base text-zinc-700 dark:text-zinc-300 leading-snug">
             <strong className="block text-zinc-900 dark:text-zinc-50 mb-1">{caption}</strong>
-            {description ? (
-              descToShow ? (
-                <span className="text-zinc-600 dark:text-zinc-400 whitespace-pre-line">{descToShow}</span>
-              ) : null
+            {descToShow ? (
+              <span className="text-zinc-600 dark:text-zinc-400 whitespace-pre-line">{descToShow}</span>
             ) : (
               <span className="text-zinc-500 dark:text-zinc-400">Kurzer Begleittext oder Datum — ergänze mit Sidecar-Datei.</span>
             )}
