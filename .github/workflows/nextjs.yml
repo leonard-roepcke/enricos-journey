@@ -30,14 +30,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: enricos-journey/
+        working-directory: enricos-journey/enricos-journey
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Detect package manager
         id: detect-package-manager
         run: |
-          PROJECT_DIR="${GITHUB_WORKSPACE}/enricos-journey/enricos-journey"
+          PROJECT_DIR="${GITHUB_WORKSPACE}/enricos-journey"
           if [ -f "${PROJECT_DIR}/yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_OUTPUT
             echo "command=install" >> $GITHUB_OUTPUT
