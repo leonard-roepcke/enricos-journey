@@ -1,8 +1,7 @@
 // app/page.tsx
 import TimelineItem from './components/TimelineItem';
 
-// BasePath aus .env
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const basePath = "/enricos-journey"; // harte Zuordnung
 
 // Manuelles Image-Array (früher über fs)
 // Passe hier die Bilder und Unterordner an
@@ -41,7 +40,7 @@ export default function Home() {
             ) : (
               <div className="mt-3.75">
                 {images.map((item, idx) => {
-                  const files = item.file.map((f) => `${basePath}/${f}`);
+                  const files = item.file;
                   const side = idx % 2 === 0 ? 'left' : 'right';
 
                   return (
