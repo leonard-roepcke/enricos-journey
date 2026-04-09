@@ -18,6 +18,12 @@ const imagesData = [
     description: 'HI bo',
     files: ['enricos-mega.jpg'],
   },
+  {
+    folder: 'image-1',
+    caption: 'tu tu',
+    description: 'HI bo',
+    files: ['enricos-mega.jpg', 'IMG-20260403-WA0001.jpg'],
+  },
   // weitere Ordner hier hinzufügen
 ];
 
