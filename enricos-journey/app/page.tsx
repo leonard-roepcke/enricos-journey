@@ -8,12 +8,12 @@ const imagesData = [
   {
     folder: "2",
     caption: "Te to",
-    description: "HI bo",
+    description: "enricos-mega.jpg",
     files: ["enricos-mega.jpg"], // Alle Bilder des Ordners
   },
   {
     folder: "3",
-    caption: "Te to",
+    caption: "enricos-mega.jpg",
     description: "HI bo",
     files: ["enricos-mega.jpg"], // Alle Bilder des Ordners
   },
