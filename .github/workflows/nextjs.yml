@@ -72,7 +72,6 @@ jobs:
       - name: Build with Next.js
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} next build
-          ${{ steps.detect-package-manager.outputs.runner }} next export -o out
         working-directory: enricos-journey
 
       # 8️⃣ Upload für Pages Deployment
