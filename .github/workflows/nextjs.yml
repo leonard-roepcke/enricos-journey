@@ -18,69 +18,75 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: enricos-journey
-
     steps:
+      # 1️⃣ Checkout des Repos
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2️⃣ Detect package manager
       - name: Detect package manager
         id: detect-package-manager
         run: |
-          if [ -f "yarn.lock" ]; then
+          if [ -f "enricos-journey/yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_OUTPUT
             echo "command=install" >> $GITHUB_OUTPUT
             echo "runner=yarn" >> $GITHUB_OUTPUT
-          elif [ -f "package.json" ]; then
+          elif [ -f "enricos-journey/package.json" ]; then
             echo "manager=npm" >> $GITHUB_OUTPUT
             echo "command=ci" >> $GITHUB_OUTPUT
             echo "runner=npx --no-install" >> $GITHUB_OUTPUT
           else
-            echo "No package.json found"
+            echo "No package.json found in enricos-journey"
             exit 1
           fi
 
+      # 3️⃣ Setup Node mit Cache-Pfad zum Lockfile
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache-dependency-path: enricos-journey/package-lock.json
 
+      # 4️⃣ GitHub Pages konfigurieren
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           static_site_generator: next
 
+      # 5️⃣ Cache für Next.js Build
       - name: Restore cache
         uses: actions/cache@v4
         with:
           path: enricos-journey/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('enricos-journey/**/package-lock.json', 'enricos-journey/**/yarn.lock') }}-${{ hashFiles('enricos-journey/**.[jt]s', 'enricos-journey/**.[jt]sx') }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('enricos-journey/package-lock.json', 'enricos-journey/yarn.lock') }}-${{ hashFiles('enricos-journey/**/*.js', 'enricos-journey/**/*.ts', 'enricos-journey/**/*.jsx', 'enricos-journey/**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-
 
+      # 6️⃣ Dependencies installieren
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+        working-directory: enricos-journey
 
+      # 7️⃣ Build & Export Next.js
       - name: Build with Next.js
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} next build
           ${{ steps.detect-package-manager.outputs.runner }} next export -o out
+        working-directory: enricos-journey
 
+      # 8️⃣ Upload für Pages Deployment
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: enricos-journey/out
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
-    needs: build
 
     steps:
       - name: Deploy to GitHub Pages
