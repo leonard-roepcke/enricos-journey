@@ -6,18 +6,18 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // Manuelles Image-Array (früher über fs)
 // Passe hier die Bilder und Unterordner an
+
 const images = [
   {
-    file: ["images/001-example.png"], // Pfad relativ zu /public
+    file: [`${basePath}/images/001-example.png`],
     caption: "Example Caption",
     description: "Beschreibung des ersten Bildes",
   },
   {
-    file: ["images/002-example.png"],
+    file: [`${basePath}/images/002-example.png`],
     caption: "Zweites Bild",
     description: "Beschreibung des zweiten Bildes",
   },
-  // weitere Items hier hinzufügen
 ];
 
 export default function Home() {
