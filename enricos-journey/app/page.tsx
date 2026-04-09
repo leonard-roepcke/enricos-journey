@@ -1,23 +1,25 @@
-// app/page.tsx
 import TimelineItem from './components/TimelineItem';
 
-const basePath = "/enricos-journey"; // harte Zuordnung
+const basePath = "/enricos-journey"; // GitHub Pages Repo-Name
 
-// Manuelles Image-Array (früher über fs)
-// Passe hier die Bilder und Unterordner an
-
-const images = [
+// Alle Bildordner und Bilder manuell definieren
+// Format: { folder: "Ordnername", caption, description, files: [Dateien im Ordner] }
+const imagesData = [
   {
-    file: [`${basePath}/images/001-example.png`],
-    caption: "Example Caption",
-    description: "Beschreibung des ersten Bildes",
+    folder: "2",
+    caption: "Te to",
+    description: "HI bo",
+    files: ["enricos-mega.jpg"], // Alle Bilder des Ordners
   },
-  {
-    file: [`${basePath}/images/002-example.png`],
-    caption: "Zweites Bild",
-    description: "Beschreibung des zweiten Bildes",
-  },
+  // weitere Ordner hier hinzufügen
 ];
+
+// Wandelt Ordnernamen + Dateien in TimelineItem-Dateipfade um
+const images = imagesData.map((item) => ({
+  caption: item.caption,
+  description: item.description,
+  file: item.files.map((f) => `${basePath}/images/${item.folder}/${f}`),
+}));
 
 export default function Home() {
   return (
@@ -36,18 +38,30 @@ export default function Home() {
 
           <div className="relative">
             {images.length === 0 ? (
-              <div className="py-24 text-center text-zinc-600 dark:text-zinc-400">Keine Bilder vorhanden.</div>
+              <div className="py-24 text-center text-zinc-600 dark:text-zinc-400">
+                Keine Bilder vorhanden.
+              </div>
             ) : (
               <div className="mt-3.75">
                 {images.map((item, idx) => {
-                  const files = item.file;
                   const side = idx % 2 === 0 ? 'left' : 'right';
-
                   return (
-                    <div key={item.file[0]} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 -mt-15 first:mt-0">
-                      <div className={`flex ${side === 'left' ? 'justify-end pr-6' : 'justify-start pr-6'}`}>
+                    <div
+                      key={item.file[0]}
+                      className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 -mt-15 first:mt-0"
+                    >
+                      <div
+                        className={`flex ${
+                          side === 'left' ? 'justify-end pr-6' : 'justify-start pr-6'
+                        }`}
+                      >
                         {side === 'left' && (
-                          <TimelineItem files={files} caption={item.caption} description={item.description} side={side} />
+                          <TimelineItem
+                            files={item.file}
+                            caption={item.caption}
+                            description={item.description}
+                            side={side}
+                          />
                         )}
                       </div>
 
@@ -55,9 +69,18 @@ export default function Home() {
                         <div className="w-6 h-6 bg-white dark:bg-zinc-900 border-4 border-zinc-100 dark:border-zinc-900 rounded-full shadow-md" />
                       </div>
 
-                      <div className={`flex ${side === 'right' ? 'justify-start pl-6' : 'justify-end pl-6'}`}>
+                      <div
+                        className={`flex ${
+                          side === 'right' ? 'justify-start pl-6' : 'justify-end pl-6'
+                        }`}
+                      >
                         {side === 'right' && (
-                          <TimelineItem files={files} caption={item.caption} description={item.description} side={side} />
+                          <TimelineItem
+                            files={item.file}
+                            caption={item.caption}
+                            description={item.description}
+                            side={side}
+                          />
                         )}
                       </div>
                     </div>
