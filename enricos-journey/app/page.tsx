@@ -11,6 +11,12 @@ const imagesData = [
     description: "HI bo",
     files: ["enricos-mega.jpg"], // Alle Bilder des Ordners
   },
+  {
+    folder: "3",
+    caption: "Te to",
+    description: "HI bo",
+    files: ["enricos-mega.jpg"], // Alle Bilder des Ordners
+  },
   // weitere Ordner hier hinzufügen
 ];
 
