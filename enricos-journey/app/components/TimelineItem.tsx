@@ -12,7 +12,8 @@ type Props = {
 const isVideoFile = (f: string) => /\.(mp4|webm|ogg|m4v)$/i.test(f);
 
 export default function TimelineItem({ files, caption, description, side }: Props) {
-  const [idx, setIdx] = useState(0);
+  const firstVideoIndex = files.findIndex(isVideoFile);
+  const [idx, setIdx] = useState(() => (firstVideoIndex >= 0 ? firstVideoIndex : 0));
   const count = files.length;
   const intervalMs = 4000;
   const hoverRef = useRef(false);
@@ -104,7 +105,20 @@ export default function TimelineItem({ files, caption, description, side }: Prop
                   }`}
                   controls
                   playsInline
-                  preload="metadata"
+                  muted
+                  autoPlay
+                  loop
+                  preload="auto"
+                  onLoadedData={() => {
+                    // ensure autoplay starts when ready for the active video
+                    if (i === idx) {
+                      try {
+                        videoRefs.current[i]?.play().catch(() => {});
+                      } catch (e) {
+                        /* ignore */
+                      }
+                    }
+                  }}
                 />
               );
             }
